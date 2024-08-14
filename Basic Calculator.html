@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .calculator {
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 300px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .calculator-screen {
+            background-color: #222;
+            color: white;
+            font-size: 2em;
+            padding: 20px;
+            text-align: right;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            padding: 20px;
+            background-color: #444;
+        }
+
+        .btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 1.5em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+        .clear {
+            background-color: #e74c3c;
+        }
+
+        .clear:hover {
+            background-color: #c0392b;
+        }
+
+        .operator {
+            background-color: #f39c12;
+        }
+
+        .operator:hover {
+            background-color: #e67e22;
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator-screen" id="screen">
+            0
+        </div>
+        <div class="calculator-buttons">
+            <!-- First row -->
+            <button class="btn clear" id="clear">C</button>
+            <button class="btn operator" data-operator="/">&#247;</button>
+            <button class="btn operator" data-operator="*">&#215;</button>
+            <button class="btn operator" data-operator="-">-</button>
+            
+            <!-- Second row -->
+            <button class="btn" data-value="7">7</button>
+            <button class="btn" data-value="8">8</button>
+            <button class="btn" data-value="9">9</button>
+            <button class="btn operator" data-operator="+">+</button>
+            
+            <!-- Third row -->
+            <button class="btn" data-value="4">4</button>
+            <button class="btn" data-value="5">5</button>
+            <button class="btn" data-value="6">6</button>
+            <button class="btn operator" data-operator="=" id="equals">=</button>
+            
+            <!-- Fourth row -->
+            <button class="btn" data-value="1">1</button>
+            <button class="btn" data-value="2">2</button>
+            <button class="btn" data-value="3">3</button>
+            
+            <!-- Fifth row -->
+            <button class="btn zero" data-value="0">0</button>
+            <button class="btn" data-value=".">.</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const screen = document.getElementById('screen');
+            const buttons = document.querySelectorAll('.btn');
+            const clearButton = document.getElementById('clear');
+
+            let currentInput = '';
+            let previousInput = '';
+            let operator = null; // Properly initialize operator as null
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+
+                    if (value !== null) { // Handle only number and decimal buttons
+                        if (value === '.' && currentInput.includes('.')) {
+                            return; // Prevent multiple decimals
+                        }
+
+                        currentInput += value;
+                        screen.textContent = currentInput;
+                    }
+                });
+            });
+
+            document.querySelectorAll('.operator').forEach(button => {
+                button.addEventListener('click', function() {
+                    const op = this.getAttribute('data-operator');
+
+                    if (op !== '=') {
+                        if (currentInput === '' && op !== 'C') return; // Ensure there is input before operator
+
+                        if (previousInput !== '' && currentInput !== '') {
+                            currentInput = calculate(previousInput, currentInput, operator);
+                            screen.textContent = currentInput;
+                        }
+
+                        operator = op;
+                        previousInput = currentInput;
+                        currentInput = '';
+
+                    } else if (op === '=') {
+                        if (previousInput !== '' && currentInput !== '') {
+                            currentInput = calculate(previousInput, currentInput, operator);
+                            screen.textContent = currentInput;
+                            previousInput = '';
+                            operator = null; // Reset the operator
+                        }
+                    }
+                });
+            });
+
+            clearButton.addEventListener('click', function() {
+                currentInput = '';
+                previousInput = '';
+                operator = null;
+                screen.textContent = '0';
+            });
+
+            function calculate(a, b, op) {
+                a = parseFloat(a);
+                b = parseFloat(b);
+                if (isNaN(a) || isNaN(b)) return '';
+                switch (op) {
+                    case '+': return (a + b).toString();
+                    case '-': return (a - b).toString();
+                    case '*': return (a * b).toString();
+                    case '/': return (a / b).toString();
+                    default: return '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
